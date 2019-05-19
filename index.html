@@ -139,6 +139,7 @@ function get_short_url(long_url, login, api_key, func){
 
 			var long_url = res;
 			get_short_url(long_url, login, api_key, function(short_url) {
+				short_url = short_url.replace('http', 'https')
 				let html = `
 					<tr>
 						<td>${value}</td>
