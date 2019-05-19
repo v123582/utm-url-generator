@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+  <link href="tagsinput.css" rel="stylesheet" type="text/css">
+  <script src="tagsinput.js"></script>
+
+  <style type="text/css">
+	.bootstrap-tagsinput .badge {
+	    margin: 5px;
+	    padding: 8px;
+	}
+	.badge-info {
+	    color: #fff;
+	    background-color: #007bff;
+	}
+	.table {
+		table-layout: fixed;
+	}
+	td {
+		word-break: break-all
+	}
+  </style>
+
+</head>
+<body>
+
+<div class="container">
+  <h2>UTM Generator</h2>
+  <p>Example:</p>
+  <code>
+	* 原始URL: https://udesign.udnfunlife.com/mall/cus/cat/Cc1c01.do?dc_cateid_0=A_041_067
+	<br/>
+	* 主題 (campaign): TEST_2_FOFOCUP
+	<br/>
+	* 品牌/產品 (content): A_041_067
+	<br/>
+	* KOL: Develop036, Develop041
+	<br/>
+	* Result:
+	<br/>
+	1. https://udesign.udnfunlife.com/mall/cus/cat/Cc1c01.do?dc_cateid_0=A_041_067&utm_source=superstarlive&utm_medium=fb&utm_campaign=TEST_2_FOFOCUP&utm_content=A_041_067&utm_term=Develop036
+	<br/>
+	2. https://udesign.udnfunlife.com/mall/cus/cat/Cc1c01.do?dc_cateid_0=A_041_067&utm_source=superstarlive&utm_medium=fb&utm_campaign=TEST_2_FOFOCUP&utm_content=A_041_067&utm_term=Develop041
+
+  </code>
+
+  <br/><br/>
+  <form>
+    <div class="form-group">
+      <label for="url">原始URL:</label>
+      <input type="text" class="form-control" id="url" name="url">
+    </div>
+    <div class="form-group">
+      <label for="campaign">主題 (campaign):</label>
+      <input type="text" class="form-control" id="campaign" name="campaign">
+    </div>
+    <div class="form-group">
+      <label for="content">品牌/產品 (content):</label>
+      <input type="text" class="form-control" id="content" name="content">
+    </div>
+    <div class="form-group">
+      <label for="KOL">KOL:</label>
+      <input type="text" data-role="tagsinput" id="KOL" value="">
+    </div>
+    <button type="button" class="btn btn-primary" id="submit">Submit</button>
+  </form>
+
+
+  <table class="table" style="margin: 30px 0;">
+    <thead>
+      <tr>
+        <th>KOL</th>
+        <th>URL</th>
+        <th>Short URL</th>
+      </tr>
+    </thead>
+    <tbody id='tbody'>
+    </tbody>
+  </table>
+</div>
+
+</body>
+
+<script type="text/javascript">
+function get_short_url(long_url, login, api_key, func){
+
+		$.getJSON("http://api.bitly.com/v3/shorten?callback=?",{ 
+            "format": "json",
+            "apiKey": api_key,
+            "login": login,
+            "longUrl": long_url
+        }, function(response) {
+		  func(response.data.url);
+		})
+		.done(function() { })
+		.fail(function() { func(''); });
+
+}
+</script>
+
+<script type="text/javascript">
+	let url = ''
+	let campaign = ''
+	let content = ''
+	let KOL = []
+	let results = []
+
+	var login = "o_4c6k756r77";
+	var api_key = "R_a3753cde15f94c2a90ecfe019506a074";
+
+	$( "#url" ).change(function(value) {
+		url = value.target.value;
+	});
+	$( "#campaign" ).change(function(value) {
+		campaign = value.target.value;
+	});
+	$( "#content" ).change(function(value) {
+		content = value.target.value;
+	});
+	$( "#KOL" ).change(function(value) {
+		KOL = $("#KOL").val().split(",");
+	});
+
+	$( "#submit" ).click(function(argument) {
+		results = []
+		$('tbody').html('')
+		$.each(KOL, function( index, value ) {
+			value = value.trim()
+			let res = `${url}&utm_source=superstarlive&utm_medium=fb&utm_campaign=${campaign}&utm_content=${content}&utm_term=${value}`
+			results.push(res)
+
+			var long_url = res;
+			get_short_url(long_url, login, api_key, function(short_url) {
+				let html = `
+					<tr>
+						<td>${value}</td>
+						<td><a href="${res}">${res}</a></td>
+						<td><a href="${short_url}">${short_url}</a></td>
+					</tr>
+				`;
+				$('tbody').append(html)
+			});
+		});
+		console.log(results);
+	})
+
+</script>
+
+</html>
+
+
+<!-- # 原始URL
+https://udesign.udnfunlife.com/mall/cus/cat/Cc1c01.do?
+dc_cateid_0=A_041_067& 
+utm_source=superstarlive&
+utm_medium=fb&
+utm_campaign=TEST_2_FOFOCUP& # 主題 (campaign)
+utm_content=A_041_067& # 品牌/產品 (content)
+utm_term=Develop041 # KOL
+
+ -->
